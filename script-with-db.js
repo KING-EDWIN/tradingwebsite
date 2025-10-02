@@ -3,6 +3,7 @@
 // Global variables
 let currentSection = 'dashboard';
 let currentUser = null;
+let currentAdmin = null;
 let portfolioData = {
     totalValue: 0,
     todayPnl: 0,
@@ -11,6 +12,8 @@ let portfolioData = {
 };
 
 let marketData = {};
+let videos = [];
+let videoCategories = [];
 
 // API Base URL
 const API_BASE = '/api';
@@ -20,6 +23,8 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
     setupEventListeners();
     checkUserAuth();
+    setupMobileMenu();
+    setupVideoModal();
 });
 
 // Check if user is authenticated
@@ -138,13 +143,16 @@ async function handleRegister() {
 // Update user interface
 function updateUserInterface() {
     if (currentUser) {
-        // Update balance display
-        document.getElementById('balance').textContent = `$${currentUser.balance.toFixed(2)}`;
+        // Update user name and balance
+        const userName = document.getElementById('userName');
+        const userBalance = document.getElementById('userBalance');
         
-        // Update user info
-        const userAvatar = document.querySelector('.user-avatar');
-        if (userAvatar) {
-            userAvatar.innerHTML = `<i class="fas fa-user"></i> ${currentUser.name}`;
+        if (userName) {
+            userName.textContent = currentUser.name;
+        }
+        
+        if (userBalance) {
+            userBalance.textContent = `$${currentUser.balance.toFixed(2)}`;
         }
     }
 }
@@ -162,6 +170,12 @@ async function loadUserData() {
         
         // Load trades
         await loadTrades();
+        
+        // Load videos
+        await loadVideos();
+        
+        // Load video categories
+        await loadVideoCategories();
         
         // Update dashboard
         updateDashboard();
@@ -246,47 +260,48 @@ function initializeApp() {
 // Setup event listeners
 function setupEventListeners() {
     // Navigation
-    const navLinks = document.querySelectorAll('.nav-link');
-    navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        item.addEventListener('click', function(e) {
             e.preventDefault();
-            const section = this.getAttribute('href').substring(1);
+            const section = this.dataset.section;
             showSection(section);
+            
+            // Close mobile menu on mobile
+            if (window.innerWidth <= 1024) {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.remove('open');
+            }
         });
     });
     
     // Trading form
-    const tradingForm = document.querySelector('.trading-form');
+    const tradingForm = document.getElementById('tradingForm');
     if (tradingForm) {
         tradingForm.addEventListener('submit', handleTradeSubmission);
     }
     
-    // Market card clicks
-    const marketCards = document.querySelectorAll('.market-card');
-    marketCards.forEach(card => {
-        card.addEventListener('click', function() {
-            const symbol = this.querySelector('h3').textContent;
-            showTradingForSymbol(symbol);
-        });
-    });
-    
-    // Trade buttons in portfolio
-    const tradeButtons = document.querySelectorAll('.btn-primary');
-    tradeButtons.forEach(button => {
-        if (button.textContent.trim() === 'Trade') {
-            button.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const row = this.closest('tr');
-                const symbol = row.querySelector('td:first-child').textContent;
-                showTradingForSymbol(symbol);
-            });
-        }
-    });
-
     // Logout functionality
-    const logoutBtn = document.querySelector('.logout-btn');
+    const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', handleLogout);
+    }
+
+    // Video filters
+    const categoryFilter = document.getElementById('categoryFilter');
+    const difficultyFilter = document.getElementById('difficultyFilter');
+
+    if (categoryFilter) {
+        categoryFilter.addEventListener('change', filterVideos);
+    }
+    if (difficultyFilter) {
+        difficultyFilter.addEventListener('change', filterVideos);
+    }
+
+    // Admin panel button
+    const adminPanelBtn = document.getElementById('adminPanelBtn');
+    if (adminPanelBtn) {
+        adminPanelBtn.addEventListener('click', createAdminVideoForm);
     }
 }
 
@@ -468,15 +483,19 @@ function showTradingForSymbol(symbol) {
 // Update dashboard
 function updateDashboard() {
     // Update portfolio stats
-    const totalValueElement = document.querySelector('.stat-value[data-stat="total-value"]');
-    const todayPnlElement = document.querySelector('.stat-value[data-stat="today-pnl"]');
-    const availableCashElement = document.querySelector('.stat-value[data-stat="available-cash"]');
-    const winRateElement = document.querySelector('.stat-value[data-stat="win-rate"]');
+    const totalValueElement = document.getElementById('totalValue');
+    const todayPnlElement = document.getElementById('todayPnl');
+    const availableCashElement = document.getElementById('availableCash');
+    const winRateElement = document.getElementById('winRate');
     
     if (totalValueElement) totalValueElement.textContent = `$${portfolioData.totalValue.toFixed(2)}`;
     if (todayPnlElement) {
         todayPnlElement.textContent = `$${portfolioData.todayPnl.toFixed(2)}`;
-        todayPnlElement.className = `stat-value ${portfolioData.todayPnl >= 0 ? 'positive' : 'negative'}`;
+        const changeElement = document.getElementById('todayPnlChange');
+        if (changeElement) {
+            changeElement.textContent = `${portfolioData.todayPnl >= 0 ? '+' : ''}${portfolioData.todayPnl.toFixed(2)}%`;
+            changeElement.className = `stat-change ${portfolioData.todayPnl >= 0 ? 'positive' : 'negative'}`;
+        }
     }
     if (availableCashElement) availableCashElement.textContent = `$${portfolioData.availableCash.toFixed(2)}`;
     if (winRateElement) winRateElement.textContent = `${portfolioData.winRate.toFixed(1)}%`;
@@ -504,8 +523,482 @@ function simulateRealTimeUpdates() {
     }, 30000); // Update every 30 seconds
 }
 
+// Video Management Functions
+async function loadVideos() {
+    try {
+        const response = await fetch(`${API_BASE}/videos?user_id=${currentUser?.id || ''}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            videos = data.videos;
+            updateVideoGrid();
+        }
+    } catch (error) {
+        console.error('Error loading videos:', error);
+    }
+}
+
+async function loadVideoCategories() {
+    try {
+        const response = await fetch(`${API_BASE}/video-categories`);
+        const data = await response.json();
+        
+        if (data.success) {
+            videoCategories = data.categories;
+            updateCategoryFilter();
+        }
+    } catch (error) {
+        console.error('Error loading video categories:', error);
+    }
+}
+
+function updateVideoGrid() {
+    const videoGrid = document.getElementById('video-grid');
+    if (!videoGrid) return;
+
+    videoGrid.innerHTML = '';
+
+    videos.forEach(video => {
+        const videoCard = document.createElement('div');
+        videoCard.className = 'video-card';
+        videoCard.onclick = () => openVideoModal(video);
+
+        const progressPercent = video.duration ? (video.progress.watched_duration / video.duration) * 100 : 0;
+
+        videoCard.innerHTML = `
+            <div class="video-thumbnail">
+                <img src="${video.thumbnail_url}" alt="${video.title}" onerror="this.src='https://via.placeholder.com/300x180?text=Video'">
+                <div class="video-play-overlay">
+                    <i class="fas fa-play"></i>
+                </div>
+            </div>
+            <div class="video-info">
+                <h3 class="video-title">${video.title}</h3>
+                <p class="video-description">${video.description || ''}</p>
+                <div class="video-meta">
+                    <span class="video-tag">${video.category || 'Uncategorized'}</span>
+                    <span class="video-tag difficulty-${video.difficulty}">${video.difficulty}</span>
+                    ${video.duration ? `<span class="video-tag">${formatDuration(video.duration)}</span>` : ''}
+                </div>
+                ${video.progress ? `
+                    <div class="video-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+
+        videoGrid.appendChild(videoCard);
+    });
+}
+
+function updateCategoryFilter() {
+    const categoryFilter = document.getElementById('category-filter');
+    if (!categoryFilter) return;
+
+    // Clear existing options except "All Categories"
+    categoryFilter.innerHTML = '<option value="">All Categories</option>';
+
+    videoCategories.forEach(category => {
+        const option = document.createElement('option');
+        option.value = category.name;
+        option.textContent = category.name;
+        categoryFilter.appendChild(option);
+    });
+}
+
+function openVideoModal(video) {
+    const modal = document.getElementById('video-modal');
+    const player = document.getElementById('video-player');
+    const title = document.getElementById('video-title');
+    const description = document.getElementById('video-description');
+    const category = document.getElementById('video-category');
+    const difficulty = document.getElementById('video-difficulty');
+    const duration = document.getElementById('video-duration');
+
+    if (!modal) return;
+
+    // Update video player
+    player.src = `https://www.youtube.com/embed/${video.youtube_id}?autoplay=1&rel=0`;
+    
+    // Update video info
+    title.textContent = video.title;
+    description.textContent = video.description || '';
+    category.textContent = video.category || 'Uncategorized';
+    difficulty.textContent = video.difficulty;
+    duration.textContent = video.duration ? formatDuration(video.duration) : '';
+
+    // Show modal
+    modal.style.display = 'flex';
+
+    // Track video progress
+    trackVideoProgress(video);
+}
+
+function closeVideoModal() {
+    const modal = document.getElementById('video-modal');
+    const player = document.getElementById('video-player');
+    
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    
+    if (player) {
+        player.src = '';
+    }
+}
+
+async function trackVideoProgress(video) {
+    if (!currentUser) return;
+
+    try {
+        await fetch(`${API_BASE}/video-progress`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: currentUser.id,
+                video_id: video.id,
+                watched_duration: video.progress?.watched_duration || 0,
+                is_completed: false
+            })
+        });
+    } catch (error) {
+        console.error('Error tracking video progress:', error);
+    }
+}
+
+function formatDuration(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+
+    if (hours > 0) {
+        return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    } else {
+        return `${minutes}:${secs.toString().padStart(2, '0')}`;
+    }
+}
+
+// Admin Functions
+async function handleAdminLogin() {
+    const email = document.getElementById('admin-email').value;
+    const password = document.getElementById('admin-password').value;
+
+    try {
+        const response = await fetch(`${API_BASE}/admin/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            currentAdmin = data.admin;
+            localStorage.setItem('tradingAdmin', JSON.stringify(currentAdmin));
+            document.querySelector('.admin-login-modal').remove();
+            showAdminPanel();
+        } else {
+            alert('Admin login failed: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Admin login error:', error);
+        alert('Admin login failed. Please try again.');
+    }
+}
+
+function showAdminPanel() {
+    const adminPanelBtn = document.getElementById('admin-panel-btn');
+    if (adminPanelBtn) {
+        adminPanelBtn.style.display = 'block';
+    }
+}
+
+function createAdminVideoForm() {
+    const videoGrid = document.getElementById('video-grid');
+    if (!videoGrid) return;
+
+    const adminPanel = document.createElement('div');
+    adminPanel.className = 'admin-panel';
+    adminPanel.innerHTML = `
+        <h3>Add New Video</h3>
+        <form class="admin-form" onsubmit="handleVideoSubmit(event)">
+            <div class="form-row">
+                <input type="text" id="video-title" placeholder="Video Title" required>
+                <input type="url" id="video-url" placeholder="YouTube URL" required>
+            </div>
+            <div class="form-row">
+                <select id="video-category" required>
+                    <option value="">Select Category</option>
+                    ${videoCategories.map(cat => `<option value="${cat.name}">${cat.name}</option>`).join('')}
+                </select>
+                <select id="video-difficulty" required>
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                </select>
+            </div>
+            <textarea id="video-description" placeholder="Video Description"></textarea>
+            <div class="form-row">
+                <label>
+                    <input type="checkbox" id="video-private"> Private Video
+                </label>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Video</button>
+        </form>
+    `;
+
+    videoGrid.parentNode.insertBefore(adminPanel, videoGrid);
+}
+
+async function handleVideoSubmit(event) {
+    event.preventDefault();
+
+    const title = document.getElementById('video-title').value;
+    const url = document.getElementById('video-url').value;
+    const category = document.getElementById('video-category').value;
+    const difficulty = document.getElementById('video-difficulty').value;
+    const description = document.getElementById('video-description').value;
+    const isPrivate = document.getElementById('video-private').checked;
+
+    try {
+        const response = await fetch(`${API_BASE}/videos`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                title,
+                youtube_url: url,
+                category,
+                difficulty,
+                description,
+                is_private: isPrivate,
+                uploaded_by: currentAdmin?.id
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            alert('Video added successfully!');
+            event.target.reset();
+            await loadVideos();
+        } else {
+            alert('Failed to add video: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Error adding video:', error);
+        alert('Failed to add video. Please try again.');
+    }
+}
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Video modal close
+    const videoClose = document.querySelector('.video-close');
+    if (videoClose) {
+        videoClose.onclick = closeVideoModal;
+    }
+
+    // Video modal background click
+    const videoModal = document.getElementById('video-modal');
+    if (videoModal) {
+        videoModal.onclick = function(e) {
+            if (e.target === videoModal) {
+                closeVideoModal();
+            }
+        };
+    }
+
+    // Video filters
+    const categoryFilter = document.getElementById('category-filter');
+    const difficultyFilter = document.getElementById('difficulty-filter');
+
+    if (categoryFilter) {
+        categoryFilter.onchange = filterVideos;
+    }
+    if (difficultyFilter) {
+        difficultyFilter.onchange = filterVideos;
+    }
+
+    // Admin panel button
+    const adminPanelBtn = document.getElementById('admin-panel-btn');
+    if (adminPanelBtn) {
+        adminPanelBtn.onclick = createAdminVideoForm;
+    }
+});
+
+function filterVideos() {
+    const category = document.getElementById('category-filter')?.value || '';
+    const difficulty = document.getElementById('difficulty-filter')?.value || '';
+
+    const filteredVideos = videos.filter(video => {
+        const categoryMatch = !category || video.category === category;
+        const difficultyMatch = !difficulty || video.difficulty === difficulty;
+        return categoryMatch && difficultyMatch;
+    });
+
+    // Update video grid with filtered videos
+    const videoGrid = document.getElementById('video-grid');
+    if (!videoGrid) return;
+
+    videoGrid.innerHTML = '';
+
+    filteredVideos.forEach(video => {
+        const videoCard = document.createElement('div');
+        videoCard.className = 'video-card';
+        videoCard.onclick = () => openVideoModal(video);
+
+        const progressPercent = video.duration ? (video.progress.watched_duration / video.duration) * 100 : 0;
+
+        videoCard.innerHTML = `
+            <div class="video-thumbnail">
+                <img src="${video.thumbnail_url}" alt="${video.title}" onerror="this.src='https://via.placeholder.com/300x180?text=Video'">
+                <div class="video-play-overlay">
+                    <i class="fas fa-play"></i>
+                </div>
+            </div>
+            <div class="video-info">
+                <h3 class="video-title">${video.title}</h3>
+                <p class="video-description">${video.description || ''}</p>
+                <div class="video-meta">
+                    <span class="video-tag">${video.category || 'Uncategorized'}</span>
+                    <span class="video-tag difficulty-${video.difficulty}">${video.difficulty}</span>
+                    ${video.duration ? `<span class="video-tag">${formatDuration(video.duration)}</span>` : ''}
+                </div>
+                ${video.progress ? `
+                    <div class="video-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+
+        videoGrid.appendChild(videoCard);
+    });
+}
+
+// Mobile Menu Setup
+function setupMobileMenu() {
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+    }
+
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+    }
+
+    // Close sidebar when clicking outside
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth <= 1024 && 
+            !sidebar.contains(e.target) && 
+            !mobileMenuBtn.contains(e.target)) {
+            sidebar.classList.remove('open');
+        }
+    });
+}
+
+// Video Modal Setup
+function setupVideoModal() {
+    const videoClose = document.querySelector('.video-close');
+    const videoModal = document.getElementById('videoModal');
+
+    if (videoClose) {
+        videoClose.onclick = closeVideoModal;
+    }
+
+    if (videoModal) {
+        videoModal.onclick = function(e) {
+            if (e.target === videoModal) {
+                closeVideoModal();
+            }
+        };
+    }
+}
+
+// Update page title
+function updatePageTitle(section) {
+    const pageTitle = document.getElementById('pageTitle');
+    if (pageTitle) {
+        const titles = {
+            'dashboard': 'Dashboard',
+            'portfolio': 'Portfolio',
+            'markets': 'Markets',
+            'trading': 'Trading',
+            'videos': 'Video Library',
+            'analytics': 'Analytics'
+        };
+        pageTitle.textContent = titles[section] || 'Dashboard';
+    }
+}
+
+// Update navigation
+function updateNavigation(activeSection) {
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.section === activeSection) {
+            item.classList.add('active');
+        }
+    });
+}
+
+// Show specific section
+function showSection(sectionId) {
+    // Hide all sections
+    const sections = document.querySelectorAll('.content-section');
+    sections.forEach(section => {
+        section.classList.remove('active');
+    });
+    
+    // Show target section
+    const targetSection = document.getElementById(sectionId);
+    if (targetSection) {
+        targetSection.classList.add('active');
+    }
+    
+    // Update navigation
+    updateNavigation(sectionId);
+    
+    // Update page title
+    updatePageTitle(sectionId);
+    
+    currentSection = sectionId;
+    
+    // Load section-specific data
+    if (sectionId === 'portfolio') {
+        loadPortfolioData();
+    } else if (sectionId === 'trading') {
+        loadMarketData();
+    } else if (sectionId === 'analytics') {
+        loadTrades();
+    } else if (sectionId === 'videos') {
+        loadVideos();
+        loadVideoCategories();
+    }
+}
+
 // Make functions globally available
 window.showAuthTab = showAuthTab;
 window.handleLogin = handleLogin;
 window.handleRegister = handleRegister;
 window.handleLogout = handleLogout;
+window.handleAdminLogin = handleAdminLogin;
+window.handleVideoSubmit = handleVideoSubmit;
