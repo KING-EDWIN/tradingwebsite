@@ -21,9 +21,11 @@ import {
   AlertTriangle,
   CheckCircle,
   Clock,
-  Video
+  Video,
+  BookOpen
 } from "lucide-react";
 import VideoManagement from "./VideoManagement";
+import CourseManagement from "./CourseManagement";
 
 interface User {
   id: string;
@@ -363,7 +365,7 @@ const SuperAdminPortal = () => {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="users" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="users" className="flex items-center space-x-2">
               <Users className="h-4 w-4" />
               <span>User Management</span>
@@ -371,6 +373,10 @@ const SuperAdminPortal = () => {
             <TabsTrigger value="tokens" className="flex items-center space-x-2">
               <Key className="h-4 w-4" />
               <span>Token Management</span>
+            </TabsTrigger>
+            <TabsTrigger value="courses" className="flex items-center space-x-2">
+              <BookOpen className="h-4 w-4" />
+              <span>Course Management</span>
             </TabsTrigger>
             <TabsTrigger value="videos" className="flex items-center space-x-2">
               <Video className="h-4 w-4" />
@@ -543,6 +549,11 @@ const SuperAdminPortal = () => {
                 </div>
               </div>
             </Card>
+          </TabsContent>
+
+          {/* Courses Tab */}
+          <TabsContent value="courses" className="space-y-4">
+            <CourseManagement adminId="admin-id" />
           </TabsContent>
 
           {/* Videos Tab */}

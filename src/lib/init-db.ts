@@ -1,6 +1,7 @@
 import { sql } from '@vercel/postgres';
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
+import { initializeCourseTables } from './course-database';
 
 // Initialize database tables for Vercel Postgres
 export async function initializeDatabase() {
@@ -104,6 +105,9 @@ export async function initializeDatabase() {
       `;
       console.log('Default video categories created');
     }
+
+    // Initialize course tables
+    await initializeCourseTables();
 
     console.log('Database initialized successfully');
     return true;

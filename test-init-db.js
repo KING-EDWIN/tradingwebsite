@@ -1,4 +1,7 @@
 import { sql } from '@vercel/postgres';
+
+// Set the connection string
+process.env.POSTGRES_URL = 'postgresql://neondb_owner:npg_f1TEJcN9nXbO@ep-snowy-cake-abyf9zvu-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require';
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 

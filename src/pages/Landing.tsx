@@ -59,7 +59,7 @@ const Landing = () => {
               Master technical analysis, risk management, and profitable trading systems.
             </p>
             
-            <div className="flex justify-center mb-16">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
               <Button 
                 variant="hero" 
                 size="lg" 
@@ -67,6 +67,14 @@ const Landing = () => {
                 onClick={handleSignIn}
               >
                 Start Learning Today
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="text-lg px-8 py-4"
+                onClick={() => navigate('/courses')}
+              >
+                Browse Courses
               </Button>
             </div>
           </div>
