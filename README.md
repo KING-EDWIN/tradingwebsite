@@ -1,173 +1,73 @@
-# Trading Platform Website
+# Welcome to your Lovable project
 
-A modern, responsive trading platform built with HTML, CSS, and JavaScript. This project provides a comprehensive trading dashboard with real-time market data, portfolio management, and interactive trading features.
+## Project info
 
-## Features
+**URL**: https://lovable.dev/projects/6a191b32-04e4-4ebc-b66e-10d3a2a15a9e
 
-### 🏠 Dashboard
-- Real-time portfolio overview
-- Performance statistics
-- Interactive charts and graphs
-- Recent trades display
-- Market status indicators
+## How can I edit this code?
 
-### 💼 Portfolio Management
-- Current holdings overview
-- Portfolio performance tracking
-- P&L calculations
-- Position management tools
+There are several ways of editing your application.
 
-### 📈 Market Data
-- Live market prices
-- Mini charts for each symbol
-- Market filters and search
-- Real-time price updates
+**Use Lovable**
 
-### 💱 Trading Interface
-- Order placement forms
-- Order book visualization
-- Market and limit orders
-- Trade execution simulation
+Simply visit the [Lovable Project](https://lovable.dev/projects/6a191b32-04e4-4ebc-b66e-10d3a2a15a9e) and start prompting.
 
-### 📊 Analytics
-- Performance analysis charts
-- Risk metrics visualization
-- Historical data tracking
+Changes made via Lovable will be committed automatically to this repo.
 
-## Technology Stack
+**Use your preferred IDE**
 
-- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
-- **Charts**: Chart.js
-- **Icons**: Font Awesome
-- **Styling**: Custom CSS with modern design principles
-- **Responsive Design**: Mobile-first approach
+If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
 
-## Design Features
+The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
-- **Dark Theme**: Professional trading interface with dark color scheme
-- **Responsive Layout**: Works seamlessly on desktop, tablet, and mobile
-- **Modern UI**: Clean, intuitive interface with smooth animations
-- **Real-time Updates**: Simulated live data updates
-- **Interactive Elements**: Hover effects, transitions, and user feedback
+Follow these steps:
 
-## Getting Started
+```sh
+# Step 1: Clone the repository using the project's Git URL.
+git clone <YOUR_GIT_URL>
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/KING-EDWIN/tradingwebsite.git
-   cd tradingwebsite
-   ```
+# Step 2: Navigate to the project directory.
+cd <YOUR_PROJECT_NAME>
 
-2. **Open in browser**:
-   - Simply open `index.html` in your web browser
-   - Or use a local server for development:
-     ```bash
-     # Using Python
-     python -m http.server 8000
-     
-     # Using Node.js
-     npx serve .
-     ```
+# Step 3: Install the necessary dependencies.
+npm i
 
-3. **Access the application**:
-   - Navigate to `http://localhost:8000` (if using a local server)
-   - Or open `index.html` directly in your browser
-
-## Project Structure
-
-```
-tradingwebsite/
-├── index.html          # Main HTML file
-├── styles.css          # CSS styles and responsive design
-├── script.js           # JavaScript functionality
-└── README.md           # Project documentation
+# Step 4: Start the development server with auto-reloading and an instant preview.
+npm run dev
 ```
 
-## Key Components
+**Edit a file directly in GitHub**
 
-### Navigation
-- Sticky header with logo and navigation menu
-- Section-based navigation (Dashboard, Portfolio, Markets, Trading, Analytics)
-- User balance display
+- Navigate to the desired file(s).
+- Click the "Edit" button (pencil icon) at the top right of the file view.
+- Make your changes and commit the changes.
 
-### Dashboard
-- Statistics cards with key metrics
-- Interactive charts for portfolio performance
-- Recent trades table
-- Market status indicators
+**Use GitHub Codespaces**
 
-### Portfolio
-- Holdings overview table
-- Portfolio summary statistics
-- Individual position management
+- Navigate to the main page of your repository.
+- Click on the "Code" button (green button) near the top right.
+- Select the "Codespaces" tab.
+- Click on "New codespace" to launch a new Codespace environment.
+- Edit files directly within the Codespace and commit and push your changes once you're done.
 
-### Markets
-- Market cards with live prices
-- Mini charts for each symbol
-- Search and filter functionality
+## What technologies are used for this project?
 
-### Trading
-- Order placement form
-- Order book visualization
-- Trade execution simulation
+This project is built with:
 
-## Customization
+- Vite
+- TypeScript
+- React
+- shadcn-ui
+- Tailwind CSS
 
-### Adding New Symbols
-To add new trading symbols, update the `marketData` object in `script.js`:
+## How can I deploy this project?
 
-```javascript
-marketData.NEW_SYMBOL = {
-    price: 100.00,
-    change: 0.00,
-    changePercent: 0.00
-};
-```
+Simply open [Lovable](https://lovable.dev/projects/6a191b32-04e4-4ebc-b66e-10d3a2a15a9e) and click on Share -> Publish.
 
-### Styling Modifications
-The CSS uses CSS custom properties for easy theming. Key color variables can be modified in the `:root` selector.
+## Can I connect a custom domain to my Lovable project?
 
-### Adding New Features
-The modular JavaScript structure makes it easy to add new features. Each section has its own update function that can be extended.
+Yes, you can!
 
-## Browser Support
+To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
-- Chrome (recommended)
-- Firefox
-- Safari
-- Edge
-- Mobile browsers (iOS Safari, Chrome Mobile)
-
-## Future Enhancements
-
-- [ ] Real API integration for live market data
-- [ ] User authentication and accounts
-- [ ] Advanced charting tools
-- [ ] Mobile app version
-- [ ] Real-time notifications
-- [ ] Advanced order types
-- [ ] Risk management tools
-- [ ] Social trading features
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## License
-
-This project is open source and available under the [MIT License](LICENSE).
-
-## Support
-
-For support or questions, please open an issue in the GitHub repository.
-
----
-
-**Note**: This is a demo trading platform for educational purposes. It does not connect to real trading APIs or execute actual trades. Always use proper risk management when trading with real money.
-
-
-
+Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
