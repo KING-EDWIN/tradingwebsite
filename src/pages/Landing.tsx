@@ -33,15 +33,6 @@ const Landing = () => {
             <Button variant="ghost">About</Button>
             <Button variant="outline" onClick={handleSignIn}>Sign In</Button>
             <Button variant="hero" onClick={handleSignIn}>Get Started</Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => navigate('/super-admin')}
-              className="text-warning hover:text-warning"
-            >
-              <Shield className="h-4 w-4 mr-1" />
-              Admin
-            </Button>
           </div>
         </div>
       </nav>
