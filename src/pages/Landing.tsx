@@ -59,7 +59,7 @@ const Landing = () => {
               Master technical analysis, risk management, and profitable trading systems.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+            <div className="flex justify-center mb-16">
               <Button 
                 variant="hero" 
                 size="lg" 
@@ -68,17 +68,14 @@ const Landing = () => {
               >
                 Start Learning Today
               </Button>
-              <Button variant="neon" size="lg" className="text-lg px-8 py-4">
-                Watch Demo
-              </Button>
             </div>
           </div>
 
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             {[
-              { icon: Users, label: "Active Traders", value: "10,000+" },
-              { icon: BookOpen, label: "Video Lessons", value: "500+" },
+              { icon: Users, label: "Active Traders", value: "30+" },
+              { icon: BookOpen, label: "Video Lessons", value: "50+" },
               { icon: Target, label: "Success Rate", value: "87%" }
             ].map((stat, index) => (
               <Card key={index} className="glass-card p-6 hover-lift animate-float" 
@@ -143,9 +140,9 @@ const Landing = () => {
               <span className="text-lg font-display font-semibold">TradeMaster Academy</span>
             </div>
             <div className="flex space-x-6 text-sm text-muted-foreground">
-              <a href="#" className="hover:text-primary transition-colors">About</a>
-              <a href="#" className="hover:text-primary transition-colors">Terms</a>
-              <a href="#" className="hover:text-primary transition-colors">Contact</a>
+              <a href="/about" className="hover:text-primary transition-colors">About</a>
+              <a href="/terms" className="hover:text-primary transition-colors">Terms</a>
+              <a href="/contact" className="hover:text-primary transition-colors">Contact</a>
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-border text-center text-sm text-muted-foreground">
