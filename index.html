@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Platform - Professional Trading Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                <span>Trading Platform</span>
+            </div>
+            <nav class="nav">
+                <a href="#dashboard" class="nav-link active">Dashboard</a>
+                <a href="#portfolio" class="nav-link">Portfolio</a>
+                <a href="#markets" class="nav-link">Markets</a>
+                <a href="#trading" class="nav-link">Trading</a>
+                <a href="#analytics" class="nav-link">Analytics</a>
+            </nav>
+            <div class="user-info">
+                <div class="balance">
+                    <span class="balance-label">Balance:</span>
+                    <span class="balance-amount" id="balance">$10,000.00</span>
+                </div>
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <button class="logout-btn" style="background: #ff4757; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-left: 10px;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="content-section active">
+                <div class="section-header">
+                    <h1>Dashboard</h1>
+                    <div class="market-status">
+                        <span class="status-indicator market-open"></span>
+                        <span>Market Open</span>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Total Value</h3>
+                            <p class="stat-value" id="total-value">$12,450.00</p>
+                            <span class="stat-change positive">+2.45%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Today's P&L</h3>
+                            <p class="stat-value" id="today-pnl">+$245.00</p>
+                            <span class="stat-change positive">+2.45%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Available Cash</h3>
+                            <p class="stat-value" id="available-cash">$8,750.00</p>
+                            <span class="stat-change neutral">0.00%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Win Rate</h3>
+                            <p class="stat-value" id="win-rate">68.5%</p>
+                            <span class="stat-change positive">+5.2%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="charts-section">
+                    <div class="chart-container">
+                        <h3>Portfolio Performance</h3>
+                        <canvas id="portfolio-chart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Market Overview</h3>
+                        <canvas id="market-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Trades -->
+                <div class="recent-trades">
+                    <h3>Recent Trades</h3>
+                    <div class="trades-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Symbol</th>
+                                    <th>Type</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>P&L</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="trades-tbody">
+                                <tr>
+                                    <td>AAPL</td>
+                                    <td><span class="trade-type buy">Buy</span></td>
+                                    <td>10</td>
+                                    <td>$150.25</td>
+                                    <td class="positive">+$25.00</td>
+                                    <td>10:30 AM</td>
+                                </tr>
+                                <tr>
+                                    <td>TSLA</td>
+                                    <td><span class="trade-type sell">Sell</span></td>
+                                    <td>5</td>
+                                    <td>$245.80</td>
+                                    <td class="positive">+$125.00</td>
+                                    <td>09:15 AM</td>
+                                </tr>
+                                <tr>
+                                    <td>GOOGL</td>
+                                    <td><span class="trade-type buy">Buy</span></td>
+                                    <td>3</td>
+                                    <td>$2,850.00</td>
+                                    <td class="negative">-$45.00</td>
+                                    <td>08:45 AM</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Portfolio Section -->
+            <section id="portfolio" class="content-section">
+                <div class="section-header">
+                    <h1>Portfolio</h1>
+                    <button class="btn btn-primary">Add Position</button>
+                </div>
+                <div class="portfolio-grid">
+                    <div class="portfolio-summary">
+                        <h3>Portfolio Summary</h3>
+                        <div class="summary-stats">
+                            <div class="summary-item">
+                                <span class="label">Total Investment:</span>
+                                <span class="value">$3,700.00</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Current Value:</span>
+                                <span class="value">$3,945.00</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Total P&L:</span>
+                                <span class="value positive">+$245.00</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Return %:</span>
+                                <span class="value positive">+6.62%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="holdings-table">
+                        <h3>Current Holdings</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Symbol</th>
+                                    <th>Shares</th>
+                                    <th>Avg Price</th>
+                                    <th>Current Price</th>
+                                    <th>Market Value</th>
+                                    <th>P&L</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="holdings-tbody">
+                                <tr>
+                                    <td>AAPL</td>
+                                    <td>10</td>
+                                    <td>$147.50</td>
+                                    <td>$150.25</td>
+                                    <td>$1,502.50</td>
+                                    <td class="positive">+$27.50</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary">Trade</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>TSLA</td>
+                                    <td>5</td>
+                                    <td>$220.00</td>
+                                    <td>$245.80</td>
+                                    <td>$1,229.00</td>
+                                    <td class="positive">+$129.00</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary">Trade</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>GOOGL</td>
+                                    <td>3</td>
+                                    <td>$2,865.00</td>
+                                    <td>$2,850.00</td>
+                                    <td>$8,550.00</td>
+                                    <td class="negative">-$45.00</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary">Trade</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Markets Section -->
+            <section id="markets" class="content-section">
+                <div class="section-header">
+                    <h1>Markets</h1>
+                    <div class="market-filters">
+                        <select class="filter-select">
+                            <option>All Markets</option>
+                            <option>Stocks</option>
+                            <option>Crypto</option>
+                            <option>Forex</option>
+                        </select>
+                        <input type="text" placeholder="Search symbols..." class="search-input">
+                    </div>
+                </div>
+                <div class="markets-grid">
+                    <div class="market-card">
+                        <div class="market-header">
+                            <h3>AAPL</h3>
+                            <span class="market-name">Apple Inc.</span>
+                        </div>
+                        <div class="market-price">
+                            <span class="price">$150.25</span>
+                            <span class="change positive">+2.45%</span>
+                        </div>
+                        <div class="market-chart-mini">
+                            <canvas id="aapl-mini-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="market-card">
+                        <div class="market-header">
+                            <h3>TSLA</h3>
+                            <span class="market-name">Tesla Inc.</span>
+                        </div>
+                        <div class="market-price">
+                            <span class="price">$245.80</span>
+                            <span class="change positive">+5.67%</span>
+                        </div>
+                        <div class="market-chart-mini">
+                            <canvas id="tsla-mini-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="market-card">
+                        <div class="market-header">
+                            <h3>GOOGL</h3>
+                            <span class="market-name">Alphabet Inc.</span>
+                        </div>
+                        <div class="market-price">
+                            <span class="price">$2,850.00</span>
+                            <span class="change negative">-1.23%</span>
+                        </div>
+                        <div class="market-chart-mini">
+                            <canvas id="googl-mini-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Trading Section -->
+            <section id="trading" class="content-section">
+                <div class="section-header">
+                    <h1>Trading</h1>
+                </div>
+                <div class="trading-interface">
+                    <div class="trading-panel">
+                        <h3>Place Order</h3>
+                        <form class="trading-form">
+                            <div class="form-group">
+                                <label for="symbol">Symbol</label>
+                                <input type="text" id="symbol" placeholder="Enter symbol (e.g., AAPL)">
+                            </div>
+                            <div class="form-group">
+                                <label for="order-type">Order Type</label>
+                                <select id="order-type">
+                                    <option value="market">Market</option>
+                                    <option value="limit">Limit</option>
+                                    <option value="stop">Stop</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="side">Side</label>
+                                <select id="side">
+                                    <option value="buy">Buy</option>
+                                    <option value="sell">Sell</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="quantity">Quantity</label>
+                                <input type="number" id="quantity" placeholder="Enter quantity">
+                            </div>
+                            <div class="form-group">
+                                <label for="price">Price (Limit Orders)</label>
+                                <input type="number" id="price" placeholder="Enter price" step="0.01">
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-large">Place Order</button>
+                        </form>
+                    </div>
+                    <div class="order-book">
+                        <h3>Order Book</h3>
+                        <div class="order-book-content">
+                            <div class="bids">
+                                <h4>Bids</h4>
+                                <div class="order-levels">
+                                    <div class="order-level">
+                                        <span class="price">$150.25</span>
+                                        <span class="quantity">100</span>
+                                    </div>
+                                    <div class="order-level">
+                                        <span class="price">$150.20</span>
+                                        <span class="quantity">250</span>
+                                    </div>
+                                    <div class="order-level">
+                                        <span class="price">$150.15</span>
+                                        <span class="quantity">150</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="asks">
+                                <h4>Asks</h4>
+                                <div class="order-levels">
+                                    <div class="order-level">
+                                        <span class="price">$150.30</span>
+                                        <span class="quantity">200</span>
+                                    </div>
+                                    <div class="order-level">
+                                        <span class="price">$150.35</span>
+                                        <span class="quantity">175</span>
+                                    </div>
+                                    <div class="order-level">
+                                        <span class="price">$150.40</span>
+                                        <span class="quantity">300</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytics Section -->
+            <section id="analytics" class="content-section">
+                <div class="section-header">
+                    <h1>Analytics</h1>
+                </div>
+                <div class="analytics-grid">
+                    <div class="analytics-chart">
+                        <h3>Performance Analysis</h3>
+                        <canvas id="performance-chart"></canvas>
+                    </div>
+                    <div class="analytics-chart">
+                        <h3>Risk Metrics</h3>
+                        <canvas id="risk-chart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script-with-db.js"></script>
+</body>
+</html>
+
+
+

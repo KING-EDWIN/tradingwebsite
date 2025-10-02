@@ -1,0 +1,23 @@
+{
+  "name": "trading-website",
+  "version": "1.0.0",
+  "description": "Professional Trading Dashboard with Database Integration",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'Static site - no build needed'",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "@vercel/postgres": "^0.10.0",
+    "bcryptjs": "^3.0.2",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/uuid": "^10.0.0"
+  },
+  "keywords": ["trading", "dashboard", "finance", "vercel"],
+  "author": "KING-EDWIN",
+  "license": "MIT"
+}
