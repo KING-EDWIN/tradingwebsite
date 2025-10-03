@@ -59,7 +59,7 @@ const CourseLibrary = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/courses/categories');
+      const response = await fetch('/api/courses?action=categories');
       const data = await response.json();
       if (data.success) {
         setCategories(data.categories);

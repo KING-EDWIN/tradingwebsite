@@ -73,7 +73,7 @@ const CourseManagement: React.FC<CourseManagementProps> = ({ adminId }) => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/courses/categories');
+      const response = await fetch('/api/courses?action=categories');
       const data = await response.json();
       if (data.success) {
         setCategories(data.categories);
@@ -85,7 +85,7 @@ const CourseManagement: React.FC<CourseManagementProps> = ({ adminId }) => {
 
   const fetchCourseVideos = async (courseId: string) => {
     try {
-      const response = await fetch(`/api/courses/videos?course_id=${courseId}`);
+      const response = await fetch(`/api/videos?course_id=${courseId}`);
       const data = await response.json();
       if (data.success) {
         setCourseVideos(data.videos);
@@ -159,7 +159,7 @@ const CourseManagement: React.FC<CourseManagementProps> = ({ adminId }) => {
     if (!selectedCourse) return;
 
     try {
-      const response = await fetch('/api/courses/videos', {
+      const response = await fetch('/api/videos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -183,7 +183,7 @@ const CourseManagement: React.FC<CourseManagementProps> = ({ adminId }) => {
     if (!editingVideo) return;
 
     try {
-      const response = await fetch('/api/courses/videos', {
+      const response = await fetch('/api/videos', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -208,7 +208,7 @@ const CourseManagement: React.FC<CourseManagementProps> = ({ adminId }) => {
     if (!confirm('Are you sure you want to delete this video?')) return;
 
     try {
-      const response = await fetch(`/api/courses/videos?id=${videoId}`, {
+      const response = await fetch(`/api/videos?id=${videoId}`, {
         method: 'DELETE'
       });
 
