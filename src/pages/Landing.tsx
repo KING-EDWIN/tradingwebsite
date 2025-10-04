@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import TokenAuthModal from "@/components/TokenAuthModal";
+import AuthModal from "@/components/AuthModal";
 import { TrendingUp, BarChart3, Target, Shield, Users, BookOpen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-bg.jpg";
@@ -10,11 +10,6 @@ const Landing = () => {
   const navigate = useNavigate();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [user, setUser] = useState(null);
-
-  const handleAuthSuccess = (userData: any) => {
-    setUser(userData);
-    navigate('/dashboard');
-  };
 
   const handleSignIn = () => {
     setIsAuthModalOpen(true);
@@ -160,10 +155,9 @@ const Landing = () => {
       </footer>
 
       {/* Authentication Modal */}
-      <TokenAuthModal
+      <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
-        onSuccess={handleAuthSuccess}
       />
     </div>
   );
