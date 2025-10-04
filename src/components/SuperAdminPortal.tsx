@@ -55,9 +55,6 @@ const SuperAdminPortal = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [adminToken, setAdminToken] = useState<string | null>(null);
   const [users, setUsers] = useState<User[]>([]);
-  const [tokens, setTokens] = useState<Token[]>([]);
-  const [newToken, setNewToken] = useState<string | null>(null);
-  const [showNewToken, setShowNewToken] = useState(false);
   const [loginData, setLoginData] = useState({
     email: '',
     password: ''
@@ -97,54 +94,10 @@ const SuperAdminPortal = () => {
     }
   };
 
-  const loadTokens = async () => {
-    try {
-      const { mockApi } = await import('@/lib/mock-api');
-      const data = await mockApi.getTokens(adminToken || '');
-      if (data.success) {
-        setTokens(data.tokens);
-      }
-    } catch (error) {
-      console.error('Error loading tokens:', error);
-    }
-  };
-
   const loadData = async () => {
-    await Promise.all([loadUsers(), loadTokens()]);
+    await loadUsers();
   };
 
-  // Generate new token
-  const generateNewToken = async (durationMonths: number = 3) => {
-    try {
-      const { mockApi } = await import('@/lib/mock-api');
-      const data = await mockApi.generateToken(adminToken || '', durationMonths);
-      if (data.success) {
-        setNewToken(data.token);
-        setShowNewToken(true);
-        await loadTokens();
-      }
-    } catch (error) {
-      console.error('Error generating token:', error);
-    }
-  };
-
-  // Renew user access
-  const renewUserAccess = async (userId: string, tokenId: string) => {
-    try {
-      const { mockApi } = await import('@/lib/mock-api');
-      const data = await mockApi.renewUserAccess(adminToken || '', userId, tokenId);
-      if (data.success) {
-        alert(data.message);
-        await loadUsers();
-        await loadTokens();
-      } else {
-        alert(data.error);
-      }
-    } catch (error) {
-      console.error('Error renewing access:', error);
-      alert('Failed to renew access');
-    }
-  };
 
   // Update user status
   const updateUserStatus = async (userId: string, status: 'active' | 'paused' | 'deleted') => {
@@ -159,37 +112,9 @@ const SuperAdminPortal = () => {
     }
   };
 
-  // Delete token
-  const deleteToken = async (tokenId: string) => {
-    try {
-      const { mockApi } = await import('@/lib/mock-api');
-      const data = await mockApi.deleteToken(adminToken || '', tokenId);
-      if (data.success) {
-        await loadTokens();
-      }
-    } catch (error) {
-      console.error('Error deleting token:', error);
-    }
-  };
 
-  // Copy to clipboard
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    alert('Copied to clipboard!');
-  };
-
-  // Check if user access is expired
-  const isUserAccessExpired = (user: User): boolean => {
-    const now = new Date();
-    const expiresAt = new Date(user.access_expires_at);
-    return now > expiresAt;
-  };
-
-  // Get user status (considering expiration)
+  // Get user status
   const getUserStatus = (user: User): string => {
-    if (isUserAccessExpired(user)) {
-      return 'expired';
-    }
     return user.status;
   };
 
@@ -314,11 +239,11 @@ const SuperAdminPortal = () => {
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-display font-bold mb-2">Super Admin Dashboard</h1>
-          <p className="text-muted-foreground">Manage users and tokens for the trading platform</p>
+          <p className="text-muted-foreground">Manage courses, videos, and users for the trading academy</p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {[
             { 
               icon: Users, 
@@ -333,21 +258,9 @@ const SuperAdminPortal = () => {
               color: "text-success"
             },
             { 
-              icon: Pause, 
-              label: "Paused Users", 
-              value: users.filter(u => getUserStatus(u) === 'paused').length.toString(),
-              color: "text-warning"
-            },
-            { 
-              icon: AlertTriangle, 
-              label: "Expired Users", 
-              value: users.filter(u => getUserStatus(u) === 'expired').length.toString(),
-              color: "text-destructive"
-            },
-            { 
-              icon: Key, 
-              label: "Active Tokens", 
-              value: tokens.filter(t => t.status === 'active').length.toString(),
+              icon: BookOpen, 
+              label: "Total Courses", 
+              value: "0", // Will be updated when courses are loaded
               color: "text-secondary"
             }
           ].map((stat, index) => (
@@ -364,16 +277,8 @@ const SuperAdminPortal = () => {
         </div>
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="users" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="users" className="flex items-center space-x-2">
-              <Users className="h-4 w-4" />
-              <span>User Management</span>
-            </TabsTrigger>
-            <TabsTrigger value="tokens" className="flex items-center space-x-2">
-              <Key className="h-4 w-4" />
-              <span>Token Management</span>
-            </TabsTrigger>
+        <Tabs defaultValue="courses" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="courses" className="flex items-center space-x-2">
               <BookOpen className="h-4 w-4" />
               <span>Course Management</span>
@@ -381,6 +286,10 @@ const SuperAdminPortal = () => {
             <TabsTrigger value="videos" className="flex items-center space-x-2">
               <Video className="h-4 w-4" />
               <span>Video Management</span>
+            </TabsTrigger>
+            <TabsTrigger value="users" className="flex items-center space-x-2">
+              <Users className="h-4 w-4" />
+              <span>User Management</span>
             </TabsTrigger>
           </TabsList>
 
@@ -392,8 +301,6 @@ const SuperAdminPortal = () => {
                 <div className="space-y-3">
                   {users.map((user) => {
                     const userStatus = getUserStatus(user);
-                    const isExpired = isUserAccessExpired(user);
-                    const availableTokens = tokens.filter(t => t.status === 'active');
                     
                     return (
                       <div key={user.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
@@ -405,10 +312,6 @@ const SuperAdminPortal = () => {
                               Joined: {new Date(user.created_at).toLocaleDateString()}
                               {user.last_login && ` • Last login: ${new Date(user.last_login).toLocaleDateString()}`}
                             </p>
-                            <p className={`text-xs ${isExpired ? 'text-destructive' : 'text-muted-foreground'}`}>
-                              Access expires: {new Date(user.access_expires_at).toLocaleDateString()}
-                              {isExpired && ' (EXPIRED)'}
-                            </p>
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -417,41 +320,6 @@ const SuperAdminPortal = () => {
                             {getStatusBadge(userStatus)}
                           </div>
                           <div className="flex items-center space-x-1">
-                            {isExpired && availableTokens.length > 0 && (
-                              <Dialog>
-                                <DialogTrigger asChild>
-                                  <Button variant="outline" size="sm" className="text-success">
-                                    <RotateCcw className="h-3 w-3" />
-                                  </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                  <DialogHeader>
-                                    <DialogTitle>Renew Access</DialogTitle>
-                                  </DialogHeader>
-                                  <div className="space-y-4">
-                                    <p>Select a token to renew access for {user.name}:</p>
-                                    <div className="space-y-2">
-                                      {availableTokens.map((token) => (
-                                        <div key={token.id} className="flex items-center justify-between p-2 border rounded">
-                                          <div>
-                                            <p className="font-mono text-sm">{token.token}</p>
-                                            <p className="text-xs text-muted-foreground">
-                                              {token.access_duration_months} months access
-                                            </p>
-                                          </div>
-                                          <Button
-                                            size="sm"
-                                            onClick={() => renewUserAccess(user.id, token.id)}
-                                          >
-                                            Renew
-                                          </Button>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                </DialogContent>
-                              </Dialog>
-                            )}
                             <Button
                               variant="outline"
                               size="sm"
@@ -486,70 +354,6 @@ const SuperAdminPortal = () => {
             </Card>
           </TabsContent>
 
-          {/* Tokens Tab */}
-          <TabsContent value="tokens" className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Token Management</h3>
-              <div className="flex items-center space-x-2">
-                <Button onClick={() => generateNewToken(1)} variant="outline" size="sm">
-                  1 Month
-                </Button>
-                <Button onClick={() => generateNewToken(3)} className="flex items-center space-x-2">
-                  <Plus className="h-4 w-4" />
-                  <span>3 Months (Default)</span>
-                </Button>
-                <Button onClick={() => generateNewToken(6)} variant="outline" size="sm">
-                  6 Months
-                </Button>
-              </div>
-            </div>
-
-            <Card className="glass-card">
-              <div className="p-6">
-                <div className="space-y-3">
-                  {tokens.map((token) => (
-                    <div key={token.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                      <div className="flex items-center space-x-4">
-                        <div>
-                          <p className="font-semibold font-mono">{token.token}</p>
-                          <p className="text-sm text-muted-foreground">
-                            Created: {new Date(token.created_at).toLocaleDateString()}
-                            {token.expires_at && ` • Expires: ${new Date(token.expires_at).toLocaleDateString()}`}
-                            <br />
-                            <span className="text-success">Grants {token.access_duration_months} months access</span>
-                          </p>
-                          {token.user_id && (
-                            <p className="text-xs text-muted-foreground">
-                              Used by: {users.find(u => u.id === token.user_id)?.name || 'Unknown'}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        {getStatusBadge(token.status)}
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => copyToClipboard(token.token)}
-                        >
-                          <Copy className="h-3 w-3" />
-                        </Button>
-                        {token.status === 'active' && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => deleteToken(token.id)}
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </Card>
-          </TabsContent>
 
           {/* Courses Tab */}
           <TabsContent value="courses" className="space-y-4">
@@ -562,29 +366,6 @@ const SuperAdminPortal = () => {
           </TabsContent>
         </Tabs>
 
-        {/* New Token Modal */}
-        <Dialog open={showNewToken} onOpenChange={setShowNewToken}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>New Token Generated</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="p-4 bg-muted/50 rounded-lg">
-                <p className="text-sm text-muted-foreground mb-2">Copy this token and share it with users:</p>
-                <p className="font-mono text-lg font-bold">{newToken}</p>
-                <p className="text-sm text-success mt-2">
-                  This token grants 3 months of access to the platform
-                </p>
-              </div>
-              <Button 
-                onClick={() => copyToClipboard(newToken || '')} 
-                className="w-full"
-              >
-                Copy Token
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
     </div>
   );
