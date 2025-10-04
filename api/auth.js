@@ -1,9 +1,9 @@
-import { sql } from '@vercel/postgres';
-import bcrypt from 'bcryptjs';
-import { v4 as uuidv4 } from 'uuid';
-import jwt from 'jsonwebtoken';
+const { sql } = require('@vercel/postgres');
+const bcrypt = require('bcryptjs');
+const { v4: uuidv4 } = require('uuid');
+const jwt = require('jsonwebtoken');
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
