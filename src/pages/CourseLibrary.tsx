@@ -47,11 +47,15 @@ const CourseLibrary = () => {
     try {
       const response = await fetch('/api/courses');
       const data = await response.json();
-      if (data.success) {
+      if (data.success && data.courses) {
         setCourses(data.courses);
+      } else {
+        console.warn('No courses received, using empty array');
+        setCourses([]);
       }
     } catch (error) {
       console.error('Error fetching courses:', error);
+      setCourses([]);
     } finally {
       setLoading(false);
     }
@@ -61,11 +65,15 @@ const CourseLibrary = () => {
     try {
       const response = await fetch('/api/courses?action=categories');
       const data = await response.json();
-      if (data.success) {
+      if (data.success && data.categories) {
         setCategories(data.categories);
+      } else {
+        console.warn('No categories received, using empty array');
+        setCategories([]);
       }
     } catch (error) {
       console.error('Error fetching categories:', error);
+      setCategories([]);
     }
   };
 
@@ -196,11 +204,13 @@ const CourseLibrary = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
-                  {categories.map((category) => (
+                  {categories && categories.length > 0 ? categories.map((category) => (
                     <SelectItem key={category.id} value={category.name}>
                       {category.name}
                     </SelectItem>
-                  ))}
+                  )) : (
+                    <SelectItem value="Trading Basics">Trading Basics</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
 

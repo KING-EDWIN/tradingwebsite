@@ -391,3 +391,4 @@ export function extractYouTubeId(url: string): string | null {
 export function getYouTubeEmbedUrl(videoId: string): string {
   return `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&showinfo=0`;
 }
+

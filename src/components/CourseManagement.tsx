@@ -61,11 +61,15 @@ const CourseManagement: React.FC<CourseManagementProps> = ({ adminId }) => {
     try {
       const response = await fetch('/api/courses');
       const data = await response.json();
-      if (data.success) {
+      if (data.success && data.courses) {
         setCourses(data.courses);
+      } else {
+        console.warn('No courses received, using empty array');
+        setCourses([]);
       }
     } catch (error) {
       console.error('Error fetching courses:', error);
+      setCourses([]);
     } finally {
       setLoading(false);
     }
@@ -75,11 +79,15 @@ const CourseManagement: React.FC<CourseManagementProps> = ({ adminId }) => {
     try {
       const response = await fetch('/api/courses?action=categories');
       const data = await response.json();
-      if (data.success) {
+      if (data.success && data.categories) {
         setCategories(data.categories);
+      } else {
+        console.warn('No categories received, using empty array');
+        setCategories([]);
       }
     } catch (error) {
       console.error('Error fetching categories:', error);
+      setCategories([]);
     }
   };
 
@@ -325,9 +333,11 @@ const CourseManagement: React.FC<CourseManagementProps> = ({ adminId }) => {
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
-                      {categories.map((cat) => (
+                      {categories && categories.length > 0 ? categories.map((cat) => (
                         <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
-                      ))}
+                      )) : (
+                        <SelectItem value="Trading Basics">Trading Basics</SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -474,7 +484,7 @@ const CourseManagement: React.FC<CourseManagementProps> = ({ adminId }) => {
 
         <TabsContent value="courses">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {courses.map((course) => (
+            {courses && courses.length > 0 ? courses.map((course) => (
               <Card key={course.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <div className="flex justify-between items-start">
@@ -540,7 +550,15 @@ const CourseManagement: React.FC<CourseManagementProps> = ({ adminId }) => {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            )) : (
+              <div className="col-span-full text-center py-12">
+                <p className="text-muted-foreground mb-4">No courses found. Create your first course!</p>
+                <Button onClick={() => setShowCourseDialog(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create First Course
+                </Button>
+              </div>
+            )}
           </div>
         </TabsContent>
 
@@ -641,7 +659,7 @@ const CourseManagement: React.FC<CourseManagementProps> = ({ adminId }) => {
               </div>
 
               <div className="space-y-2">
-                {courseVideos.map((video, index) => (
+                {courseVideos && courseVideos.length > 0 ? courseVideos.map((video, index) => (
                   <Card key={video.id}>
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
@@ -692,7 +710,15 @@ const CourseManagement: React.FC<CourseManagementProps> = ({ adminId }) => {
                       </div>
                     </CardContent>
                   </Card>
-                ))}
+                )) : (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground mb-4">No videos in this course yet.</p>
+                    <Button onClick={() => setShowVideoDialog(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add First Video
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           </TabsContent>
