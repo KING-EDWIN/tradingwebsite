@@ -1,6 +1,6 @@
-const { sql } = require('@vercel/postgres');
-const bcrypt = require('bcryptjs');
-const { v4: uuidv4 } = require('uuid');
+import { sql } from '@vercel/postgres';
+import bcrypt from 'bcryptjs';
+import { v4 as uuidv4 } from 'uuid';
 
 // Initialize database tables for trading website
 async function initializeDatabase() {
@@ -202,7 +202,38 @@ async function testDatabaseConnection() {
   }
 }
 
-module.exports = {
-  initializeDatabase,
-  testDatabaseConnection
-};
+// API handler
+async function handler(req, res) {
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  );
+
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  try {
+    console.log('Initializing database...');
+    await initializeDatabase();
+    
+    return res.status(200).json({ 
+      success: true, 
+      message: 'Database initialized successfully' 
+    });
+  } catch (error) {
+    console.error('Database initialization error:', error);
+    return res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+}
+
+export { initializeDatabase, testDatabaseConnection };
+export default handler;
